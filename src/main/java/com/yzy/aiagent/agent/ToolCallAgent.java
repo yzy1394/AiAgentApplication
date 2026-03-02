@@ -121,7 +121,7 @@ public class ToolCallAgent extends ReActAgent {
             return false;
         } catch (Exception e) {
             log.error(getName() + " think failed", e);
-            getMessageList().add(new AssistantMessage("处理时遇到错误：" + e.getMessage()));
+            getMessageList().add(new AssistantMessage("Processing failed: " + e.getMessage()));
             return false;
         }
     }
@@ -129,7 +129,7 @@ public class ToolCallAgent extends ReActAgent {
     @Override
     public String act() {
         if (toolCallChatResponse == null || !toolCallChatResponse.hasToolCalls()) {
-            return "没有工具需要调用";
+            return "No tools need to be called.";
         }
 
         Prompt prompt = new Prompt(getMessageList(), this.chatOptions);
@@ -146,7 +146,7 @@ public class ToolCallAgent extends ReActAgent {
         }
 
         String results = toolResponseMessage.getResponses().stream()
-                .map(response -> "工具 " + response.name() + " 返回结果：" + response.responseData())
+                .map(response -> "Tool " + response.name() + " result: " + response.responseData())
                 .collect(Collectors.joining("\n"));
         log.info(results);
         return results;
@@ -161,13 +161,13 @@ public class ToolCallAgent extends ReActAgent {
                     setState(AgentState.FINISHED);
                 }
                 String finalAnswer = getLastAssistantText();
-                return StrUtil.isNotBlank(finalAnswer) ? finalAnswer : "思考完成 - 无需行动";
+                return StrUtil.isNotBlank(finalAnswer) ? finalAnswer : "Reasoning completed: no further action required.";
             }
             return act();
         } catch (Exception e) {
             log.error(getName() + " step failed", e);
             setState(AgentState.ERROR);
-            return "步骤执行失败：" + e.getMessage();
+            return "Step execution failed: " + e.getMessage();
         }
     }
 
@@ -175,7 +175,8 @@ public class ToolCallAgent extends ReActAgent {
         List<Message> messageList = getMessageList();
         for (int i = messageList.size() - 1; i >= 0; i--) {
             Message message = messageList.get(i);
-            if (message instanceof AssistantMessage assistantMessage) {
+            if (message instanceof AssistantMessage) {
+                AssistantMessage assistantMessage = (AssistantMessage) message;
                 String text = assistantMessage.getText();
                 if (StrUtil.isNotBlank(text)) {
                     return text;

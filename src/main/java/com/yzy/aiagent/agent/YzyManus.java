@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 超级智能体（有自主规划能力）
+ * Super agent with autonomous planning capability.
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -34,18 +34,19 @@ public class YzyManus extends ToolCallAgent {
         super(allTools);
         this.chatMemoryRepository = chatMemoryRepository;
         this.setName("yzyManus");
-        String SYSTEM_PROMPT = """
-                You are YzyManus, an all-capable AI assistant, aimed at solving any task presented by the user.
-                You have various tools at your disposal that you can call upon to efficiently complete complex requests.
-                """;
-        this.setSystemPrompt(SYSTEM_PROMPT);
-        String NEXT_STEP_PROMPT = """
-                Based on user needs, proactively select the most appropriate tool or combination of tools.
-                For complex tasks, you can break down the problem and use different tools step by step to solve it.
-                After using each tool, clearly explain the execution results and suggest the next steps.
-                If you want to stop the interaction at any point, use the `terminate` tool/function call.
-                """;
-        this.setNextStepPrompt(NEXT_STEP_PROMPT);
+
+        String systemPrompt = String.join("\n",
+                "You are YzyManus, an all-capable AI assistant, aimed at solving any task presented by the user.",
+                "You have various tools at your disposal that you can call upon to efficiently complete complex requests.");
+        this.setSystemPrompt(systemPrompt);
+
+        String nextStepPrompt = String.join("\n",
+                "Based on user needs, proactively select the most appropriate tool or combination of tools.",
+                "For complex tasks, you can break down the problem and use different tools step by step to solve it.",
+                "After using each tool, clearly explain the execution results and suggest the next steps.",
+                "If you want to stop the interaction at any point, use the 'terminate' tool/function call.");
+        this.setNextStepPrompt(nextStepPrompt);
+
         this.setMaxSteps(20);
         ChatClient chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultAdvisors(new MyLoggerAdvisor())

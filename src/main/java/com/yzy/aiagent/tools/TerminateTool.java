@@ -1,16 +1,14 @@
 package com.yzy.aiagent.tools;
 
 import org.springframework.ai.tool.annotation.Tool;
+
 /**
- * 终止工具（作用是让自主规划智能体能够合理地中断）
+ * Tool used to explicitly terminate autonomous execution.
  */
 public class TerminateTool {
 
-    @Tool(description = """
-            Terminate the interaction when the request is met OR if the assistant cannot proceed further with the task.
-            "When you have finished all the tasks, call this tool to end the work.
-            """)
+    @Tool(description = "Terminate the interaction when the request is met or when the assistant cannot proceed further. Call this tool after all tasks are finished.")
     public String doTerminate() {
-        return "任务结束";
+        return "Task finished";
     }
 }
