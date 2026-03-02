@@ -1,0 +1,167 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 对话</title>
+    <link rel="stylesheet" href="assets/chat.css">
+</head>
+<body>
+<div class="bg-orb orb-a"></div>
+<div class="bg-orb orb-b"></div>
+<main class="app-shell">
+    <header class="auth-topbar">
+        <div class="auth-topbar-left">AI Agent 工作台</div>
+        <div class="auth-topbar-right">
+            <span id="authUserText">未登录</span>
+            <button id="logoutBtn" type="button" class="ghost auth-logout-btn" hidden>退出登录</button>
+        </div>
+    </header>
+    <section class="workspace">
+        <article class="chat-panel pgapp-panel active" data-panel="pgapp" aria-hidden="false">
+            <header class="panel-head">
+                <h2>PGApp 编程助手</h2>
+                <p>面向编程开发场景的智能对话，支持流式返回，适合需求拆解、方案设计与代码实现协作</p>
+            </header>
+
+            <div class="panel-body">
+                <aside class="session-column">
+                    <div class="session-head">
+                        <div class="side-actions" role="toolbar" aria-label="侧栏控制">
+                            <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-pressed="false">隐藏侧栏</button>
+                        </div>
+                    </div>
+                    <div class="session-tools">
+                        <button id="codingNewSessionBtn" type="button">新建编程会话</button>
+                        <input id="codingChatId" type="hidden" value="coding-session-1" />
+                    </div>
+                    <div id="codingSessionList" class="session-list"></div>
+                </aside>
+
+                <section class="chat-column">
+                    <button type="button" class="sidebar-float-toggle" data-sidebar-toggle aria-pressed="true">显示侧栏</button>
+                    <div class="chat-header">
+                        <h3 id="codingActiveTitle">新会话</h3>
+                        <p id="codingActiveMeta" hidden></p>
+                    </div>
+
+                    <div id="codingMessages" class="messages"></div>
+
+                    <form id="codingForm" class="input-zone">
+                        <textarea id="codingInput" placeholder="输入编程需求后按回车发送，Shift+回车换行..." required></textarea>
+                        <div class="actions">
+                            <div class="actions-left">
+                                <div class="view-switch" role="tablist" aria-label="面板切换">
+                                    <button type="button" class="view-switch-btn active" data-panel-target="pgapp" role="tab" aria-selected="true">编程助手</button>
+                                    <button type="button" class="view-switch-btn" data-panel-target="manus" role="tab" aria-selected="false">智能体</button>
+                                </div>
+                            </div>
+                            <div class="actions-right">
+                                <button type="button" class="ghost" id="codingStopBtn">停止输出</button>
+                                <button type="submit">发送</button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </article>
+
+        <article class="chat-panel manus-panel" data-panel="manus" aria-hidden="true">
+            <header class="panel-head">
+                <h2>Manus 超级智能体</h2>
+                <p>面向复杂任务的智能对话，支持流式返回，适合连续多轮协作</p>
+            </header>
+
+            <div class="panel-body">
+                <aside class="session-column">
+                    <div class="session-head">
+                        <div class="side-actions" role="toolbar" aria-label="侧栏控制">
+                            <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-pressed="false">隐藏侧栏</button>
+                        </div>
+                    </div>
+                    <div class="session-tools">
+                        <button id="manusNewSessionBtn" type="button">新建任务会话</button>
+                        <input id="manusSessionId" type="hidden" value="manus-session-1" />
+                    </div>
+                    <div id="manusSessionList" class="session-list"></div>
+                </aside>
+
+                <section class="chat-column">
+                    <button type="button" class="sidebar-float-toggle" data-sidebar-toggle aria-pressed="true">显示侧栏</button>
+                    <div class="chat-header">
+                        <h3 id="manusActiveTitle">新任务会话</h3>
+                        <p id="manusActiveMeta" hidden></p>
+                    </div>
+
+                    <div id="manusMessages" class="messages"></div>
+
+                    <form id="manusForm" class="input-zone">
+                        <textarea id="manusInput" placeholder="输入任务目标后按回车发送..." required></textarea>
+                        <div class="actions">
+                            <div class="actions-left">
+                                <div class="view-switch" role="tablist" aria-label="面板切换">
+                                    <button type="button" class="view-switch-btn active" data-panel-target="pgapp" role="tab" aria-selected="true">编程助手</button>
+                                    <button type="button" class="view-switch-btn" data-panel-target="manus" role="tab" aria-selected="false">智能体</button>
+                                </div>
+                            </div>
+                            <div class="actions-right">
+                                <button type="button" class="ghost" id="manusStopBtn">停止输出</button>
+                                <button type="submit">发送</button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </article>
+    </section>
+    <div id="authGate" class="auth-gate" aria-hidden="true">
+        <div class="auth-card">
+            <h2>登录后开始使用</h2>
+            <p id="authHint">请先登录或注册账号，注册信息将保存到 MySQL。</p>
+            <div class="auth-tabs" role="tablist" aria-label="登录注册切换">
+                <button id="showLoginTab" type="button" class="auth-tab-btn active" role="tab" aria-selected="true">登录</button>
+                <button id="showRegisterTab" type="button" class="auth-tab-btn" role="tab" aria-selected="false">注册</button>
+            </div>
+            <form id="loginForm" class="auth-form active">
+                <label>
+                    用户名
+                    <input id="loginUsername" type="text" autocomplete="username" required />
+                </label>
+                <label>
+                    密码
+                    <input id="loginPassword" type="password" autocomplete="current-password" required />
+                </label>
+                <button type="submit" class="auth-submit-btn">登录</button>
+            </form>
+            <form id="registerForm" class="auth-form">
+                <label>
+                    用户名（4-32位字母/数字/下划线）
+                    <input id="registerUsername" type="text" required />
+                </label>
+                <label>
+                    昵称（可选）
+                    <input id="registerNickname" type="text" />
+                </label>
+                <label>
+                    密码（6位以上）
+                    <input id="registerPassword" type="password" required />
+                </label>
+                <label>
+                    确认密码
+                    <input id="registerConfirmPassword" type="password" required />
+                </label>
+                <button type="submit" class="auth-submit-btn">注册</button>
+            </form>
+        </div>
+    </div>
+    <div id="panelSwitchLoading" class="panel-switch-loading" aria-hidden="true">
+        <div class="panel-switch-loading-inner">
+            <span class="panel-switch-spinner" aria-hidden="true"></span>
+            <span class="panel-switch-text">切换中</span>
+        </div>
+    </div>
+</main>
+
+<script src="assets/chat.js"></script>
+</body>
+</html>

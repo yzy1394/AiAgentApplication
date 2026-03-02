@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: yzy-image-search-mcp-server
+  profiles:
+    active: stdio
+server:
+  port: 8127
+pexels:
+  api-key: ${PEXELS_API_KEY:}
+  api-url: ${PEXELS_API_URL:https://api.pexels.com/v1/search}

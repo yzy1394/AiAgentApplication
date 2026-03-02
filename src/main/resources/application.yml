@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: ai-agent
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  ai:
+    dashscope:
+      api-key: ${ALI_DASHSCOPE_API_KEY:${DASHSCOPE_API_KEY:}}
+      chat:
+        options:
+          model: deepseek-v3.2
+  datasource:
+    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/ai_agent?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:sql/mysql_user.sql
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: ${SERVER_CONTEXT_PATH:/api}
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.yzy.aiagent.controller
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+search-api:
+  api-key: ${SEARCH_API_KEY:}
+app:
+  cors:
+    allowed-origin-patterns: ${APP_CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,http://127.0.0.1:*,https://localhost:*,https://127.0.0.1:*}
+  demo:
+    spring-ai-invoke-enabled: false
+  tools:
+    terminal-enabled: false
+    file-enabled: false
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    call-setters-on-nulls: true
+auth:
+  session:
+    timeout-hours: 24
+logging:
+  level:
+    org.springframework.ai: INFO

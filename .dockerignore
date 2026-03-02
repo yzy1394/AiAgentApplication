@@ -1,0 +1,16 @@
+.git
+.idea
+.vscode
+
+tmp
+archive
+run-*.log
+
+target/
+!target/*.jar
+
+yzy-image-search-mcp-server/target/
+yzy-image-search-mcp-server/.idea/
+
+docs/rag-web/
+docs/rag-clean/
