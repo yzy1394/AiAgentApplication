@@ -112,12 +112,16 @@ public class MybatisChatMemoryRepository implements ChatMemoryRepository {
     private Message toMessage(String messageType, String messageText) {
         String type = normalize(messageType);
         String text = messageText == null ? "" : messageText;
-        return switch (type) {
-            case "USER" -> new UserMessage(text);
-            case "SYSTEM" -> new SystemMessage(text);
-            case "ASSISTANT" -> new AssistantMessage(text);
-            default -> new AssistantMessage(text);
-        };
+        switch (type) {
+            case "USER":
+                return new UserMessage(text);
+            case "SYSTEM":
+                return new SystemMessage(text);
+            case "ASSISTANT":
+                return new AssistantMessage(text);
+            default:
+                return new AssistantMessage(text);
+        }
     }
 
     private String normalize(String value) {
