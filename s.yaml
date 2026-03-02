@@ -8,10 +8,27 @@ services:
 
     actions:
       pre-deploy:
-        - run: mvn -v
-        - run: mvn -DskipTests clean package
-        - run: ls -lah target
-        - run: test -n "$(ls target/*.jar 2>/dev/null | grep -v '\.original$' | head -n 1)"
+        - run: |
+            set -e
+            if [ -d /opt/java17 ]; then
+              export JAVA_HOME=/opt/java17
+            elif [ -d /usr/lib/jvm/java-17-openjdk ]; then
+              export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+            elif [ -d /usr/lib/jvm/java-17-openjdk-amd64 ]; then
+              export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+            else
+              echo "[FATAL] JDK17 not found in build environment"
+              java -version || true
+              exit 1
+            fi
+            export PATH=$JAVA_HOME/bin:$PATH
+            echo "[INFO] Build JDK:"
+            java -version
+            mvn -v
+            mvn -DskipTests clean package
+            echo "[INFO] Build artifacts:"
+            ls -lah target
+            test -n "$(ls target/*.jar 2>/dev/null | grep -v '\.original$' | head -n 1)"
 
     props:
       region: cn-hangzhou
@@ -55,12 +72,19 @@ services:
           args:
             - -c
             - |
+              set -e
+              export JAVA_HOME=/opt/java17
+              export PATH=$JAVA_HOME/bin:$PATH
+              echo "[INFO] Runtime JDK:"
+              java -version
+              
               JAR_FILE=$(ls /code/target/*.jar 2>/dev/null | grep -v '\.original$' | head -n 1)
               if [ -z "$JAR_FILE" ]; then
                 echo "[FATAL] jar not found in /code/target"
                 ls -lah /code/target || true
                 exit 1
               fi
+              
               echo "[INFO] starting jar: $JAR_FILE"
               exec java ${JAVA_OPTS:-} -jar "$JAR_FILE" --server.port=${SERVER_PORT:-9000}
 
