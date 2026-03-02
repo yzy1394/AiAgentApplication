@@ -5,6 +5,14 @@ access: default
 services:
   framework:
     component: fc
+
+    actions:
+      pre-deploy:
+        - run: mvn -v
+        - run: mvn -DskipTests clean package
+        - run: ls -lah target
+        - run: test -n "$(ls target/*.jar 2>/dev/null | grep -v '\.original$' | head -n 1)"
+
     props:
       region: cn-hangzhou
 
@@ -21,32 +29,40 @@ services:
         caPort: 9000
         memorySize: 2048
         cpu: 1
-        diskSize: 512
+        diskSize: 1024
 
         environmentVariables:
           JAVA_HOME: /opt/java17
-          PATH: /opt/java17/bin:/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin:/opt/bin:/code:/code/bin
-          LD_LIBRARY_PATH: /code:/code/lib:/usr/local/lib:/opt/lib:/opt/php8.1/lib:/opt/php8.0/lib:/opt/php7.2/lib
+          PATH: "/opt/java17/bin:/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin:/opt/bin:/code:/code/bin"
+          LD_LIBRARY_PATH: "/code:/code/lib:/usr/local/lib:/opt/lib:/opt/php8.1/lib:/opt/php8.0/lib:/opt/php7.2/lib"
 
-          SPRING_PROFILES_ACTIVE: prod
+          SPRING_PROFILES_ACTIVE: "prod"
           SERVER_PORT: "9000"
-          SERVER_CONTEXT_PATH: /api
+          SERVER_CONTEXT_PATH: "/api"
 
           ALI_DASHSCOPE_API_KEY: sk-6988b3414e1341e58d427abc28b61152
           SEARCH_API_KEY: Ar8gXzdj9RmhkWB5saTcuSUY
           MYSQL_URL: rm-bp1o15jnv4k6j7151.rwlb.rds.aliyuncs.com
           MYSQL_USERNAME: root
-          MYSQL_PASSWORD: !Yuan20030924
+          MYSQL_PASSWORD: '!Yuan20030924'
 
         layers:
           - acs:fc:cn-hangzhou:official:layers/Java17/versions/2
 
         customRuntimeConfig:
           command:
-            - java
+            - sh
           args:
-            - -jar
-            - target/ai-agent-0.0.1-SNAPSHOT.jar
+            - -c
+            - |
+              JAR_FILE=$(ls /code/target/*.jar 2>/dev/null | grep -v '\.original$' | head -n 1)
+              if [ -z "$JAR_FILE" ]; then
+                echo "[FATAL] jar not found in /code/target"
+                ls -lah /code/target || true
+                exit 1
+              fi
+              echo "[INFO] starting jar: $JAR_FILE"
+              exec java ${JAVA_OPTS:-} -jar "$JAR_FILE" --server.port=${SERVER_PORT:-9000}
 
       triggers:
         - name: httpTrigger
