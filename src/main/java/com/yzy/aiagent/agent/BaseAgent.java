@@ -8,6 +8,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,11 +56,12 @@ public abstract class BaseAgent {
                 String stepResult = step();
                 results.add("Step " + stepNumber + ": " + stepResult);
             }
-            if (currentStep >= maxSteps) {
+            boolean reachedMaxSteps = state != AgentState.FINISHED && currentStep >= maxSteps;
+            if (reachedMaxSteps) {
                 state = AgentState.FINISHED;
-                results.add("Terminated: Reached max steps (" + maxSteps + ")");
+                onMaxStepsReached(results);
             }
-            return String.join("\n", results);
+            return buildFinalResult(results, reachedMaxSteps);
         } catch (Exception e) {
             state = AgentState.ERROR;
             log.error("error executing agent", e);
@@ -96,9 +98,10 @@ public abstract class BaseAgent {
                         String stepResult = step();
                         sink.next("Step " + stepNumber + ": " + stepResult);
                     }
-                    if (currentStep >= maxSteps) {
+                    boolean reachedMaxSteps = state != AgentState.FINISHED && currentStep >= maxSteps;
+                    if (reachedMaxSteps) {
                         state = AgentState.FINISHED;
-                        sink.next("Terminated: Reached max steps (" + maxSteps + ")");
+                        onMaxStepsReached(sink);
                     }
                     sink.complete();
                 } catch (Exception e) {
@@ -121,6 +124,18 @@ public abstract class BaseAgent {
     }
 
     public abstract String step();
+
+    protected String buildFinalResult(List<String> results, boolean reachedMaxSteps) {
+        return String.join("\n", results);
+    }
+
+    protected void onMaxStepsReached(List<String> results) {
+        results.add("Terminated: Reached max steps (" + maxSteps + ")");
+    }
+
+    protected void onMaxStepsReached(FluxSink<String> sink) {
+        sink.next("Terminated: Reached max steps (" + maxSteps + ")");
+    }
 
     protected void cleanup() {
         // 子类可按需覆盖资源清理逻辑

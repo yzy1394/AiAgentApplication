@@ -10,6 +10,7 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.FluxSink;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class YzyManus extends ToolCallAgent {
                 "If you want to stop the interaction at any point, use the 'terminate' tool/function call.");
         this.setNextStepPrompt(nextStepPrompt);
 
-        this.setMaxSteps(20);
+        this.setMaxSteps(6);
         ChatClient chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultAdvisors(new MyLoggerAdvisor())
                 .build();
@@ -102,5 +103,23 @@ public class YzyManus extends ToolCallAgent {
 
     private String normalize(String value) {
         return value == null ? "" : value.trim().replace("\r\n", "\n");
+    }
+
+    @Override
+    protected String buildFinalResult(List<String> results, boolean reachedMaxSteps) {
+        if (!reachedMaxSteps || results.isEmpty()) {
+            return super.buildFinalResult(results, reachedMaxSteps);
+        }
+        return results.get(results.size() - 1);
+    }
+
+    @Override
+    protected void onMaxStepsReached(List<String> results) {
+        // Manus 模式达到步数上限时，直接返回最后一步结果，不追加终止文案。
+    }
+
+    @Override
+    protected void onMaxStepsReached(FluxSink<String> sink) {
+        // Manus 模式达到步数上限时，流式输出停在最后一步，不追加终止文案。
     }
 }
