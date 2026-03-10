@@ -1,4 +1,4 @@
-# ai-agent
+# 云智助手
 
 基于 Spring Boot + Spring AI 的后端项目，提供账号体系、对话能力（普通/RAG/SSE）和 Manus 智能体能力，支持 MySQL 持久化会话历史，已适配微信云托管上线。
 
@@ -7,12 +7,12 @@
 - 账号系统：注册、登录、当前用户、登出（Token 会话）。
 - 编程助手：
   - 普通对话：同步 / SSE
-  - RAG 对话：同步 / SSE（DashScope + 知识库）
+  - RAG 对话：同步 / SSE（ DashScope + 知识库）
 - Manus 智能体：流式执行工具链，**最多执行 6 步**，达到上限后直接停在最后一步结果。
 - 会话历史：
   - 编程助手历史：会话列表、消息列表、删除会话
   - Manus 历史：会话列表、消息列表、删除会话
-- 内置页面与探活：
+- 内置页面与探测：
   - `/api/`（首页）
   - `/api/ping`（健康检查）
 
@@ -20,19 +20,19 @@
 
 - Java 17
 - Spring Boot 3.4.x
-- Spring AI + Alibaba DashScope
+- Spring AI + 阿里巴巴 DashScope
 - MyBatis + MySQL
-- Reactor / SSE
+- 反应堆 / SSE
 
 ## 接口概览（默认前缀 `/api`）
 
 - 认证
   - `POST /api/auth/register`
   - `POST /api/auth/login`
-  - `GET /api/auth/me`
+  - `获取 /api/auth/me`
   - `POST /api/auth/logout`
 - 对话
-  - `GET /api/ai/pgapp/chat/sync`
+  - `获取 /api/ai/pgapp/chat/sync`
   - `GET /api/ai/pgapp/chat/sse`
   - `GET /api/ai/pgapp/chat/rag/sync`
   - `GET /api/ai/pgapp/chat/rag/sse`
