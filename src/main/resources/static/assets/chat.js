@@ -812,6 +812,15 @@
         }
 
         const displayableSteps = steps.filter((step) => !shouldHideManusStep(step.content));
+        if (!displayableSteps.length && steps.every((step) => isTerminateManusStep(step.content))) {
+            return {
+                finalStep: {
+                    label: steps[steps.length - 1].label,
+                    content: "任务已完成。"
+                },
+                previousSteps: []
+            };
+        }
         const candidates = displayableSteps.length ? displayableSteps : steps;
 
         let finalStepIndex = -1;
@@ -842,6 +851,9 @@
         if (!raw) {
             return false;
         }
+        if (isTerminateManusStep(raw)) {
+            return true;
+        }
         const normalized = raw.toLowerCase();
         const isScrapeWebPageResult = normalized.includes("工具 scrapewebpage 返回结果")
             || normalized.includes("tool scrapewebpage")
@@ -854,6 +866,17 @@
             || normalized.includes("\\n<html")
             || normalized.includes("window.location")
             || normalized.includes("fingerprintjs");
+    }
+
+    function isTerminateManusStep(text) {
+        const normalized = String(text || "").trim().toLowerCase();
+        if (!normalized) {
+            return false;
+        }
+        return normalized.includes("tool doterminate result")
+            || normalized.includes("工具 doterminate 返回结果")
+            || normalized === "task finished"
+            || normalized === "\"task finished\"";
     }
 
     function isFailedManusStep(text) {
@@ -1893,4 +1916,3 @@ ${originalCode}
         return e && e.message ? e.message : String(e);
     }
 })();
-

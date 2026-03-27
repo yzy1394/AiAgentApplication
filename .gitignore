@@ -41,3 +41,36 @@ run-*.log
 !*.env.example
 src/main/resources/mcp-servers.local.json
 yzy-image-search-mcp-server/src/main/resources/application-local.yml
+
+### OSS SAFE ###
+# Local runtime artifacts
+logs/
+*.log
+*.out
+*.pid
+
+# Local/temp build workdirs
+tmp/
+fc-upload-package/
+fc-upload-package-*/
+
+# Deployment packages and archives generated locally
+ai-agent-fc-upload*.zip
+*.tar
+*.tar.gz
+
+# IDE/test leftovers
+*.tmp
+*.bak
+*.swp
+*.orig
+
+# Common local secret files
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_rsa.pub
